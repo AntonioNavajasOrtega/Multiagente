@@ -1,0 +1,40 @@
+{
+  "scenario_name": "congested",
+  "scenario_type": "coordinated",
+  "timestamp": "2026-04-05T23:48:17",
+  "metrics": {
+    "total_iterations": 10000,
+    "total_moves": 89,
+    "total_deliveries": 6,
+    "total_cost": 87.0,
+    "wasted_space_steps": 0.0,
+    "total_idle_ticks": 19910
+  },
+  "vehicle_logs": [
+    {
+      "vehicle_id": "V0",
+      "moves": 48,
+      "deliveries": 3,
+      "cost": 47.0,
+      "wasted_space_steps": 0.0,
+      "idle_ticks": 9952
+    },
+    {
+      "vehicle_id": "V1",
+      "moves": 41,
+      "deliveries": 3,
+      "cost": 40.0,
+      "wasted_space_steps": 0.0,
+      "idle_ticks": 9958
+    }
+  ],
+  "assignment_log": [
+    "  Coordinador: V0 → D2:C3",
+    "  Coordinador: V1 → D1:C0",
+    "  Coordinador: V0 → D0:C4",
+    "  Coordinador: V1 → D0:C5",
+    "  Coordinador: V0 → D2:C1",
+    "  Coordinador: V1 → D2:C5",
+    "  Coordinador: V0 → D1:C2"
+  ]
+}

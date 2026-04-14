@@ -1,0 +1,124 @@
+{
+  "scenario_name": "small_simple",
+  "seed": 42,
+  "grid": {
+    "rows": 6,
+    "cols": 6,
+    "traffic_penalty": 2.0,
+    "cells": [
+      [
+        ".",
+        "C",
+        ".",
+        ".",
+        ".",
+        "#"
+      ],
+      [
+        ".",
+        "D",
+        ".",
+        ".",
+        ".",
+        "C"
+      ],
+      [
+        ".",
+        "T",
+        ".",
+        ".",
+        ".",
+        "."
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        ".",
+        ".",
+        "."
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        "D",
+        ".",
+        "."
+      ],
+      [
+        "#",
+        ".",
+        ".",
+        ".",
+        ".",
+        "."
+      ]
+    ]
+  },
+  "depots": [
+    {
+      "id": "D0",
+      "pos": [
+        1,
+        1
+      ],
+      "inventory": 30,
+      "even_packages": 2,
+      "odd_packages": 2,
+      "clients": [
+        "C0",
+        "C1"
+      ]
+    },
+    {
+      "id": "D1",
+      "pos": [
+        4,
+        3
+      ],
+      "inventory": 30,
+      "even_packages": 1,
+      "odd_packages": 1,
+      "clients": [
+        "C1"
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "id": "C0",
+      "pos": [
+        0,
+        1
+      ],
+      "demand": {
+        "D0": 9
+      },
+      "priority": "high"
+    },
+    {
+      "id": "C1",
+      "pos": [
+        1,
+        5
+      ],
+      "demand": {
+        "D0": 10,
+        "D1": 5
+      },
+      "priority": "medium"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "V0",
+      "pos": [
+        5,
+        3
+      ],
+      "capacity": 15,
+      "cost_per_step": 1.0
+    }
+  ]
+}

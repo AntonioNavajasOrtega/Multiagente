@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# PyCharm / VSCode
+.idea/
+.vscode/
+
+# Resultados generados (opcional: comentar si quieres versionar los resultados)
+# results/
