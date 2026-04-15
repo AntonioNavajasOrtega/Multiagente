@@ -1,0 +1,48 @@
+{
+  "scenario_name": "escenario",
+  "scenario_type": "coordinated",
+  "timestamp": "2026-04-15T22:52:51",
+  "metrics": {
+    "total_iterations": 27,
+    "total_moves": 68,
+    "total_deliveries": 7,
+    "total_cost": 66.0,
+    "wasted_space_steps": 256.0,
+    "total_idle_ticks": 5
+  },
+  "vehicle_logs": [
+    {
+      "vehicle_id": "V0",
+      "moves": 19,
+      "deliveries": 3,
+      "cost": 19.0,
+      "wasted_space_steps": 81.0,
+      "idle_ticks": 5
+    },
+    {
+      "vehicle_id": "V1",
+      "moves": 24,
+      "deliveries": 2,
+      "cost": 22.0,
+      "wasted_space_steps": 40.0,
+      "idle_ticks": 0
+    },
+    {
+      "vehicle_id": "V2",
+      "moves": 25,
+      "deliveries": 2,
+      "cost": 25.0,
+      "wasted_space_steps": 135.0,
+      "idle_ticks": 0
+    }
+  ],
+  "assignment_log": [
+    "  Coordinador: V0 → D0:C3 (uds: 14)",
+    "  Coordinador: V1 → D1:C3 (uds: 11)",
+    "  Coordinador: V2 → D0:C0 (uds: 9)",
+    "  Coordinador: V0 → D1:C1 (uds: 12)",
+    "  Coordinador: V0 → D1:C0 (uds: 2)",
+    "  Coordinador: V1 → D0:C1 (uds: 2)",
+    "  Coordinador: V2 → D1:C2 (uds: 2)"
+  ]
+}

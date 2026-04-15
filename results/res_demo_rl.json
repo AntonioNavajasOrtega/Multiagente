@@ -1,0 +1,58 @@
+{
+  "scenario_name": "escenario",
+  "scenario_type": "rl",
+  "timestamp": "2026-04-15T23:06:55",
+  "metrics": {
+    "total_iterations": 1033,
+    "total_moves": 2680,
+    "total_deliveries": 7,
+    "total_cost": 2616.0,
+    "wasted_space_steps": 20830.0,
+    "total_idle_ticks": 0
+  },
+  "vehicle_logs": [
+    {
+      "vehicle_id": "V0",
+      "moves": 621,
+      "deliveries": 1,
+      "cost": 591.0,
+      "wasted_space_steps": 2795.0,
+      "idle_ticks": 0
+    },
+    {
+      "vehicle_id": "V1",
+      "moves": 1028,
+      "deliveries": 5,
+      "cost": 1001.0,
+      "wasted_space_steps": 6396.0,
+      "idle_ticks": 0
+    },
+    {
+      "vehicle_id": "V2",
+      "moves": 1031,
+      "deliveries": 1,
+      "cost": 1024.0,
+      "wasted_space_steps": 11639.0,
+      "idle_ticks": 0
+    }
+  ],
+  "rl_stats": {
+    "agents": [
+      {
+        "vehicle_id": "V0",
+        "q_table_states": 501,
+        "epsilon": 0.05
+      },
+      {
+        "vehicle_id": "V1",
+        "q_table_states": 640,
+        "epsilon": 0.05
+      },
+      {
+        "vehicle_id": "V2",
+        "q_table_states": 499,
+        "epsilon": 0.05
+      }
+    ]
+  }
+}

@@ -37,6 +37,7 @@ class DepotAgent(RoutedAgent):
         # Lógica de dominio: retirar stock
         actual_withdrawn = self._depot.withdraw(message.amount)
         success = actual_withdrawn > 0
+        print(f"  [MSG] {self.depot_id} <- {message.vehicle_id}: PickupRequest recibida. Despachado: {actual_withdrawn}")
         
         # Enviar respuesta al vehículo emisor
         response = PickupResponse(

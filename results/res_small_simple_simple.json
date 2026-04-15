@@ -1,22 +1,22 @@
 {
   "scenario_name": "small_simple",
   "scenario_type": "simple",
-  "timestamp": "2026-04-05T23:48:04",
+  "timestamp": "2026-04-15T22:03:22",
   "metrics": {
-    "total_iterations": 22,
-    "total_moves": 19,
+    "total_iterations": 17,
+    "total_moves": 14,
     "total_deliveries": 3,
-    "total_cost": 19.0,
-    "wasted_space_steps": 0.0,
+    "total_cost": 14.0,
+    "wasted_space_steps": 56.0,
     "total_idle_ticks": 0
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 19,
+      "moves": 14,
       "deliveries": 3,
-      "cost": 19.0,
-      "wasted_space_steps": 0.0,
+      "cost": 14.0,
+      "wasted_space_steps": 56.0,
       "idle_ticks": 0
     }
   ]

@@ -49,6 +49,7 @@ class StatusReport:
     has_cargo: bool
     target_depot: Optional[str] = None
     target_client: Optional[str] = None
+    capacity: int = 15
 
 
 @dataclass
@@ -56,6 +57,7 @@ class Assignment:
     """Enviado por CoordinatorAgent a VehicleAgent para asignar una tarea."""
     depot_id: str
     client_id: str
+    amount: int
 
 
 @dataclass

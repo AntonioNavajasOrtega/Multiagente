@@ -5,6 +5,7 @@ Escenario 2: Coordinación centralizada mediante un CoordinatorAgent.
 Adaptado a AutoGen v0.4 asíncrono y AgentInstantiationContext.
 """
 from __future__ import annotations
+import asyncio
 from typing import List
 from autogen_core import AgentId, AgentInstantiationContext
 
@@ -61,7 +62,9 @@ class CoordinatedScenario(BaseScenario):
         for va in self.vehicle_agents:
             report = va.get_status_report()
             await self.runtime.send_message(report, recipient=coord_aid)
-        
+
+    async def _post_tick(self) -> None:
+        """Fase de decisión: el coordinador decide para el próximo turno."""
         if self.coordinator_agent:
             await self.coordinator_agent.coordinate()
 

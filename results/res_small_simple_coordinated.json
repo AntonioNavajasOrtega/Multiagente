@@ -1,13 +1,13 @@
 {
   "scenario_name": "small_simple",
   "scenario_type": "coordinated",
-  "timestamp": "2026-04-05T23:48:05",
+  "timestamp": "2026-04-15T22:03:22",
   "metrics": {
     "total_iterations": 16,
     "total_moves": 16,
     "total_deliveries": 3,
     "total_cost": 16.0,
-    "wasted_space_steps": 0.0,
+    "wasted_space_steps": 56.0,
     "total_idle_ticks": 0
   },
   "vehicle_logs": [
@@ -16,13 +16,13 @@
       "moves": 16,
       "deliveries": 3,
       "cost": 16.0,
-      "wasted_space_steps": 0.0,
+      "wasted_space_steps": 56.0,
       "idle_ticks": 0
     }
   ],
   "assignment_log": [
-    "  Coordinador: V0 → D0:C0",
-    "  Coordinador: V0 → D0:C1",
-    "  Coordinador: V0 → D1:C1"
+    "  Coordinador: V0 → D0:C0 (uds: 9)",
+    "  Coordinador: V0 → D0:C1 (uds: 10)",
+    "  Coordinador: V0 → D1:C1 (uds: 5)"
   ]
 }

@@ -1,0 +1,39 @@
+{
+  "scenario_name": "escenario",
+  "scenario_type": "simple",
+  "timestamp": "2026-04-15T23:06:25",
+  "metrics": {
+    "total_iterations": 10000,
+    "total_moves": 196,
+    "total_deliveries": 6,
+    "total_cost": 90.0,
+    "wasted_space_steps": 390.0,
+    "total_idle_ticks": 19827
+  },
+  "vehicle_logs": [
+    {
+      "vehicle_id": "V0",
+      "moves": 87,
+      "deliveries": 2,
+      "cost": 26.0,
+      "wasted_space_steps": 167.0,
+      "idle_ticks": 9905
+    },
+    {
+      "vehicle_id": "V1",
+      "moves": 40,
+      "deliveries": 0,
+      "cost": 15.0,
+      "wasted_space_steps": 52.0,
+      "idle_ticks": 0
+    },
+    {
+      "vehicle_id": "V2",
+      "moves": 69,
+      "deliveries": 4,
+      "cost": 49.0,
+      "wasted_space_steps": 171.0,
+      "idle_ticks": 9922
+    }
+  ]
+}

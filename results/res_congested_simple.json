@@ -1,31 +1,31 @@
 {
   "scenario_name": "congested",
   "scenario_type": "simple",
-  "timestamp": "2026-04-05T23:48:14",
+  "timestamp": "2026-04-15T22:03:37",
   "metrics": {
-    "total_iterations": 10000,
-    "total_moves": 10037,
-    "total_deliveries": 5,
-    "total_cost": 87.0,
-    "wasted_space_steps": 0.0,
-    "total_idle_ticks": 9956
+    "total_iterations": 91,
+    "total_moves": 110,
+    "total_deliveries": 8,
+    "total_cost": 110.0,
+    "wasted_space_steps": 546.0,
+    "total_idle_ticks": 0
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 9996,
-      "deliveries": 2,
-      "cost": 46.0,
-      "wasted_space_steps": 0.0,
+      "moves": 84,
+      "deliveries": 7,
+      "cost": 84.0,
+      "wasted_space_steps": 393.0,
       "idle_ticks": 0
     },
     {
       "vehicle_id": "V1",
-      "moves": 41,
-      "deliveries": 3,
-      "cost": 41.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9956
+      "moves": 26,
+      "deliveries": 1,
+      "cost": 26.0,
+      "wasted_space_steps": 153.0,
+      "idle_ticks": 0
     }
   ]
 }

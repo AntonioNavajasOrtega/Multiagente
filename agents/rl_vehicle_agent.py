@@ -72,6 +72,13 @@ class RLVehicleAgent(VehicleAgent):
                 did, cid = target
                 v.target_depot = did
                 v.target_client = cid
+                
+                # Calcular cantidad necesaria para no desperdiciar stock
+                client_obj = self.clients[cid]
+                demand_dict = client_obj._cli.demand if hasattr(client_obj, "_cli") else client_obj.demand
+                pending_demand = demand_dict.get(did, 0)
+                self.assigned_amount = min(v.capacity, pending_demand)
+                
                 v.state = VehicleState.HEADING_DEPOT
                 v.route = []
             else:

@@ -29,12 +29,16 @@ class CoordinatorAgent(RoutedAgent):
         self._depots = depots
         self._clients = clients
         
-        # Tareas actualmente asignadas para evitar duplicidad: {(depot_id, client_id): vehicle_id}
-        self.active_assignments: Dict[tuple, str] = {}
+        # Tareas actualmente asignadas: {vehicle_id: (depot_id, client_id, amount)}
+        self.active_assignments: Dict[str, tuple] = {}
         # Reportes de estado recibidos en esta iteración
         self.current_reports: Dict[str, StatusReport] = {}
         # Log histórico de acciones para el visualizador
         self.log: List[str] = []
+        
+        # Seguimiento de estancamiento para revocar tareas (si no hay protocolo de cortesía)
+        self.stagnation_counters: Dict[str, int] = {}
+        self.last_positions: Dict[str, Tuple[int, int]] = {}
 
     # ------------------------------------------------------------------
     # Manejadores
@@ -43,10 +47,21 @@ class CoordinatorAgent(RoutedAgent):
     @message_handler
     async def handle_status_report(self, message: StatusReport, ctx: MessageContext) -> None:
         """Recibe el estado de un vehículo."""
-        self.current_reports[message.vehicle_id] = message
-        # Si el vehículo está ocupado con una tarea que ya terminó, liberamos.
+        vid = message.vehicle_id
+        
+        # Detección de estancamiento
+        if vid in self.last_positions and self.last_positions[vid] == message.pos:
+            if message.state != "idle":
+                self.stagnation_counters[vid] = self.stagnation_counters.get(vid, 0) + 1
+        else:
+            self.stagnation_counters[vid] = 0
+        
+        self.last_positions[vid] = message.pos
+        self.current_reports[vid] = message
+        
         if message.state == "idle":
-            self._cleanup_finished_tasks(message.vehicle_id)
+            self.stagnation_counters[vid] = 0
+            self._cleanup_finished_tasks(vid)
 
     # ------------------------------------------------------------------
     # Lógica de asignación
@@ -58,28 +73,41 @@ class CoordinatorAgent(RoutedAgent):
         Decide las mejores asignaciones para los vehículos en IDLE.
         """
         for vid, report in self.current_reports.items():
+            # Limpieza robusta: si el vehículo está libre, liberamos asignación
             if report.state == "idle":
-                # Buscar mejor tarea disponible
-                best_task = self._find_best_task()
-                if best_task:
-                    depot_id, client_id = best_task
-                    self.active_assignments[best_task] = vid
+                self._cleanup_finished_tasks(vid)
+            
+            # REVOCACIÓN: Si el vehículo lleva > 15 turnos sin moverse y tiene tarea, se la quitamos
+            if self.stagnation_counters.get(vid, 0) >= 15 and vid in self.active_assignments:
+                task = self.active_assignments[vid]
+                self.log.append(f"  Coordinador: REVOCADA tarea a {vid} por estancamiento en {report.pos}")
+                del self.active_assignments[vid]
+                self.stagnation_counters[vid] = 0
+            
+            if report.state == "idle":
+                # Limpiar tareas terminadas si el vehículo reporta IDLE
+                self._cleanup_finished_tasks(vid)
+                
+                # Buscar mejor tarea disponible considerando la capacidad reportada
+                task_data = self._find_best_task(vid, report.capacity)
+                if task_data:
+                    depot_id, client_id, amount = task_data
+                    self.active_assignments[vid] = (depot_id, client_id, amount)
                     
-                    # Enviar mensaje de asignación al vehículo
+                    # Enviar mensaje de asignación con la cantidad exacta
                     vehicle_aid = AgentId(type="VehicleAgent", key=vid)
                     await self.send_message(
-                        Assignment(depot_id, client_id),
+                        Assignment(depot_id, client_id, amount),
                         recipient=vehicle_aid
                     )
-                    self.log.append(f"  Coordinador: {vid} → {depot_id}:{client_id}")
+                    self.log.append(f"  Coordinador: {vid} → {depot_id}:{client_id} (uds: {amount})")
 
-    def _find_best_task(self) -> tuple | None:
+    def _find_best_task(self, vehicle_id: str, capacity: int) -> tuple | None:
         """
-        Algoritmo greedy global: busca la tarea con mayor (prioridad / distancia media).
-        Solo considera tareas no asignadas actualmente.
+        Calcula el mejor par (Depósito, Cliente) y la cantidad óptima a transportar.
         """
         best_score = -1.0
-        best_pair = None
+        best_result = None
 
         for did, d in self._depots.items():
             if d.inventory <= 0: continue
@@ -89,24 +117,31 @@ class CoordinatorAgent(RoutedAgent):
                 demand = c.demand.get(did, 0)
                 if demand <= 0: continue
                 
-                # Evitar tareas ya asignadas
-                if (did, cid) in self.active_assignments: continue
+                # Colaboración: máximo 2 vehículos por tarea
+                assigned_to_this = [task for task in self.active_assignments.values() if task[0] == did and task[1] == cid]
+                if len(assigned_to_this) >= 2: continue
                 
-                # Heurística: prioridad
-                priority_val = c.priority.weight()
-                score = priority_val * (demand / 10.0)
+                # Descontar lo que ya está en camino para no sobre-asignar
+                units_in_transit = sum(task[2] for task in assigned_to_this)
+                effective_demand = demand - units_in_transit
+                if effective_demand <= 0: continue
+
+                # Cantidad óptima: lo que quepa o lo que falte
+                amount = min(capacity, effective_demand)
+                
+                # Heurística: prioridad penalizada por vehículos ya asignados
+                score = (c.priority.weight() * (effective_demand / 10.0)) / (len(assigned_to_this) + 1)
                 
                 if score > best_score:
                     best_score = score
-                    best_pair = (did, cid)
+                    best_result = (did, cid, amount)
 
-        return best_pair
+        return best_result
 
     def _cleanup_finished_tasks(self, vehicle_id: str) -> None:
-        """Elimina tareas de active_assignments si el vehículo ya está libre."""
-        to_del = [k for k, v in self.active_assignments.items() if v == vehicle_id]
-        for k in to_del:
-            del self.active_assignments[k]
+        """Elimina la tarea asignada si el vehículo ya está libre."""
+        if vehicle_id in self.active_assignments:
+            del self.active_assignments[vehicle_id]
 
     def get_assignment_log(self) -> List[str]:
         return self.log

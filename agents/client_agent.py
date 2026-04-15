@@ -37,6 +37,8 @@ class ClientAgent(RoutedAgent):
         """
         actual_received = self._cli.receive(message.depot_id, message.amount)
         success = actual_received > 0
+        if success:
+            print(f"  [MSG] {self.client_id} <- {message.vehicle_id}: Entrega recibida (+{actual_received})")
         
         response = DeliveryAck(
             success=success,

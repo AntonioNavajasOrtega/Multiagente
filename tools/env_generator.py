@@ -28,12 +28,42 @@ def _random_free_pos(
 ) -> Tuple[int, int]:
     """Devuelve una posición libre aleatoria que no esté en `taken`."""
     attempts = 0
-    while attempts < 10_000:
+    while attempts < 2000:
         r, c = random.randint(0, rows - 1), random.randint(0, cols - 1)
         if grid[r][c] == "." and (r, c) not in taken:
             return (r, c)
         attempts += 1
     raise RuntimeError("No se encontró posición libre en el grid. Reduce obstáculos.")
+
+
+def is_connected(grid, rows, cols, points):
+    """
+    Verifica que todos los puntos en `points` estén en el mismo componente conexo 
+    usando BFS. Los obstáculos '#' bloquean el paso.
+    """
+    if not points: return True
+    
+    start = points[0]
+    queue = [start]
+    visited = {start}
+    
+    reachable_count = 0
+    targets = set(points)
+    
+    while queue:
+        r, c = queue.pop(0)
+        if (r, c) in targets:
+            reachable_count += 1
+        
+        # 4 direcciones
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols:
+                if grid[nr][nc] != "#" and (nr, nc) not in visited:
+                    visited.add((nr, nc))
+                    queue.append((nr, nc))
+    
+    return reachable_count == len(targets)
 
 
 # ------------------------------------------------------------------
@@ -57,93 +87,111 @@ def generate_scenario(
     seed: int,
 ) -> dict:
     random.seed(seed)
-    grid = _make_empty_grid(rows, cols)
-    taken: set = set()
+    
+    # Intentar generar un mapa conectado (máximo 100 intentos)
+    for attempt in range(100):
+        grid = _make_empty_grid(rows, cols)
+        taken: set = set()
+        all_important_points = [] # Depósitos, Clientes, Vehículos
 
-    # Obstáculos
-    for _ in range(num_obstacles):
         try:
-            r, c = _random_free_pos(grid, rows, cols, taken)
-            grid[r][c] = "#"
-            taken.add((r, c))
+            # 1. Obstáculos
+            for _ in range(num_obstacles):
+                r, c = _random_free_pos(grid, rows, cols, taken)
+                grid[r][c] = "#"
+                taken.add((r, c))
+
+            # 2. Zonas de tráfico
+            for _ in range(num_traffic):
+                r, c = _random_free_pos(grid, rows, cols, taken)
+                grid[r][c] = "T"
+                taken.add((r, c))
+
+            # 3. Depósitos
+            depots = []
+            for i in range(num_depots):
+                r, c = _random_free_pos(grid, rows, cols, taken)
+                grid[r][c] = "D"
+                taken.add((r, c))
+                all_important_points.append((r, c))
+                even_pkg = random.randint(1, depot_inventory // 4 + 1)
+                odd_pkg = random.randint(1, depot_inventory // 4 + 1)
+                depots.append({
+                    "id": f"D{i}",
+                    "pos": [r, c],
+                    "inventory": depot_inventory,
+                    "even_packages": even_pkg,
+                    "odd_packages": odd_pkg,
+                    "clients": [],
+                })
+
+            # 4. Clientes
+            clients = []
+            priorities = ["high", "medium", "low"]
+            for i in range(num_clients):
+                r, c = _random_free_pos(grid, rows, cols, taken)
+                grid[r][c] = "C"
+                taken.add((r, c))
+                all_important_points.append((r, c))
+                # Asignar demanda a 1 o 2 depósitos al azar
+                n_depots_for_client = min(num_depots, random.randint(1, 2))
+                selected_depots = random.sample(range(num_depots), n_depots_for_client)
+                demand = {}
+                for di in selected_depots:
+                    demand[f"D{di}"] = random.randint(1, client_demand)
+                    depots[di]["clients"].append(f"C{i}")
+
+                clients.append({
+                    "id": f"C{i}",
+                    "pos": [r, c],
+                    "demand": demand,
+                    "priority": priorities[i % 3],
+                })
+
+            # 5. Vehículos
+            vehicles = []
+            for k in range(num_vehicles):
+                r, c = _random_free_pos(grid, rows, cols, taken)
+                taken.add((r, c))
+                all_important_points.append((r, c))
+                vehicles.append({
+                    "id": f"V{k}",
+                    "pos": [r, c],
+                    "capacity": vehicle_capacity,
+                    "cost_per_step": vehicle_cost,
+                })
+
+            # 6. VERIFICAR CONECTIVIDAD
+            if is_connected(grid, rows, cols, all_important_points):
+                # Si está conectado, ajustamos inventario y terminamos
+                for d in depots:
+                    required_stock = sum(c["demand"].get(d["id"], 0) for c in clients)
+                    if required_stock > d["inventory"]:
+                        d["inventory"] = required_stock + 5
+                    elif required_stock == 0:
+                        d["inventory"] = max(5, d["inventory"])
+
+                return {
+                    "scenario_name": scenario_name,
+                    "seed": seed,
+                    "grid": {
+                        "rows": rows, "cols": cols,
+                        "traffic_penalty": traffic_penalty,
+                        "cells": grid,
+                    },
+                    "depots": depots, "clients": clients, "vehicles": vehicles,
+                }
+            else:
+                # Reintento con otra semilla interna si falla conectividad
+                random.seed(seed + attempt + 1)
+                continue
+
         except RuntimeError:
-            break
+            # Si no hay espacio, reintenta
+            random.seed(seed + attempt + 1)
+            continue
 
-    # Zonas de tráfico
-    for _ in range(num_traffic):
-        try:
-            r, c = _random_free_pos(grid, rows, cols, taken)
-            grid[r][c] = "T"
-            taken.add((r, c))
-        except RuntimeError:
-            break
-
-    # Depósitos
-    depots = []
-    depot_positions = []
-    for i in range(num_depots):
-        r, c = _random_free_pos(grid, rows, cols, taken)
-        grid[r][c] = "D"
-        taken.add((r, c))
-        depot_positions.append((r, c))
-        even_pkg = random.randint(1, depot_inventory // 4 + 1)
-        odd_pkg = random.randint(1, depot_inventory // 4 + 1)
-        depots.append({
-            "id": f"D{i}",
-            "pos": [r, c],
-            "inventory": depot_inventory,
-            "even_packages": even_pkg,
-            "odd_packages": odd_pkg,
-            "clients": [],
-        })
-
-    # Clientes
-    clients = []
-    priorities = ["high", "medium", "low"]
-    for i in range(num_clients):
-        r, c = _random_free_pos(grid, rows, cols, taken)
-        grid[r][c] = "C"
-        taken.add((r, c))
-        # Asignar demanda a 1 o 2 depósitos al azar
-        n_depots_for_client = min(num_depots, random.randint(1, 2))
-        selected_depots = random.sample(range(num_depots), n_depots_for_client)
-        demand = {}
-        for di in selected_depots:
-            demand[f"D{di}"] = random.randint(1, client_demand)
-            depots[di]["clients"].append(f"C{i}")
-
-        clients.append({
-            "id": f"C{i}",
-            "pos": [r, c],
-            "demand": demand,
-            "priority": priorities[i % 3],
-        })
-
-    # Vehículos
-    vehicles = []
-    for k in range(num_vehicles):
-        r, c = _random_free_pos(grid, rows, cols, taken)
-        taken.add((r, c))
-        vehicles.append({
-            "id": f"V{k}",
-            "pos": [r, c],
-            "capacity": vehicle_capacity,
-            "cost_per_step": vehicle_cost,
-        })
-
-    return {
-        "scenario_name": scenario_name,
-        "seed": seed,
-        "grid": {
-            "rows": rows,
-            "cols": cols,
-            "traffic_penalty": traffic_penalty,
-            "cells": grid,
-        },
-        "depots": depots,
-        "clients": clients,
-        "vehicles": vehicles,
-    }
+    raise RuntimeError("No se pudo generar un mapa conectado tras 100 intentos. Baja los obstáculos.")
 
 
 # ------------------------------------------------------------------

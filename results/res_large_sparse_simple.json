@@ -1,38 +1,38 @@
 {
   "scenario_name": "large_sparse",
   "scenario_type": "simple",
-  "timestamp": "2026-04-05T23:48:05",
+  "timestamp": "2026-04-15T22:03:24",
   "metrics": {
     "total_iterations": 10000,
-    "total_moves": 144,
-    "total_deliveries": 7,
-    "total_cost": 143.0,
-    "wasted_space_steps": 0.0,
-    "total_idle_ticks": 19880
+    "total_moves": 304,
+    "total_deliveries": 16,
+    "total_cost": 300.0,
+    "wasted_space_steps": 1529.0,
+    "total_idle_ticks": 9854
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 58,
-      "deliveries": 3,
-      "cost": 57.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9938
+      "moves": 138,
+      "deliveries": 8,
+      "cost": 137.0,
+      "wasted_space_steps": 790.0,
+      "idle_ticks": 9854
     },
     {
       "vehicle_id": "V1",
-      "moves": 54,
-      "deliveries": 2,
-      "cost": 54.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9942
+      "moves": 73,
+      "deliveries": 3,
+      "cost": 71.0,
+      "wasted_space_steps": 373.0,
+      "idle_ticks": 0
     },
     {
       "vehicle_id": "V2",
-      "moves": 32,
-      "deliveries": 2,
-      "cost": 32.0,
-      "wasted_space_steps": 0.0,
+      "moves": 93,
+      "deliveries": 5,
+      "cost": 92.0,
+      "wasted_space_steps": 366.0,
       "idle_ticks": 0
     }
   ]

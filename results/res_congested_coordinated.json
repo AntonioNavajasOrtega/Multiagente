@@ -1,40 +1,42 @@
 {
   "scenario_name": "congested",
   "scenario_type": "coordinated",
-  "timestamp": "2026-04-05T23:48:17",
+  "timestamp": "2026-04-15T22:03:40",
   "metrics": {
     "total_iterations": 10000,
-    "total_moves": 89,
-    "total_deliveries": 6,
-    "total_cost": 87.0,
-    "wasted_space_steps": 0.0,
-    "total_idle_ticks": 19910
+    "total_moves": 10053,
+    "total_deliveries": 7,
+    "total_cost": 104.0,
+    "wasted_space_steps": 443.0,
+    "total_idle_ticks": 0
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 48,
+      "moves": 53,
       "deliveries": 3,
-      "cost": 47.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9952
+      "cost": 53.0,
+      "wasted_space_steps": 227.0,
+      "idle_ticks": 0
     },
     {
       "vehicle_id": "V1",
-      "moves": 41,
-      "deliveries": 3,
-      "cost": 40.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9958
+      "moves": 10000,
+      "deliveries": 4,
+      "cost": 51.0,
+      "wasted_space_steps": 216.0,
+      "idle_ticks": 0
     }
   ],
   "assignment_log": [
-    "  Coordinador: V0 → D2:C3",
-    "  Coordinador: V1 → D1:C0",
-    "  Coordinador: V0 → D0:C4",
-    "  Coordinador: V1 → D0:C5",
-    "  Coordinador: V0 → D2:C1",
-    "  Coordinador: V1 → D2:C5",
-    "  Coordinador: V0 → D1:C2"
+    "  Coordinador: V0 → D2:C3 (uds: 7)",
+    "  Coordinador: V1 → D1:C0 (uds: 6)",
+    "  Coordinador: V0 → D0:C4 (uds: 5)",
+    "  Coordinador: V1 → D0:C5 (uds: 9)",
+    "  Coordinador: V0 → D0:C2 (uds: 8)",
+    "  Coordinador: V1 → D2:C1 (uds: 4)",
+    "  Coordinador: V1 → D2:C5 (uds: 6)",
+    "  Coordinador: V0 → D2:C5 (uds: 6)",
+    "  Coordinador: V1 → D1:C2 (uds: 1)"
   ]
 }

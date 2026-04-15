@@ -1,43 +1,43 @@
 {
   "scenario_name": "congested",
   "scenario_type": "rl",
-  "timestamp": "2026-04-05T23:48:19",
+  "timestamp": "2026-04-15T22:03:42",
   "metrics": {
-    "total_iterations": 10000,
-    "total_moves": 1076,
-    "total_deliveries": 5,
-    "total_cost": 1172.0,
-    "wasted_space_steps": 0.0,
-    "total_idle_ticks": 9312
+    "total_iterations": 393,
+    "total_moves": 767,
+    "total_deliveries": 8,
+    "total_cost": 739.0,
+    "wasted_space_steps": 6994.0,
+    "total_idle_ticks": 0
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 393,
-      "deliveries": 0,
-      "cost": 423.0,
-      "wasted_space_steps": 0.0,
+      "moves": 386,
+      "deliveries": 7,
+      "cost": 396.0,
+      "wasted_space_steps": 2296.0,
       "idle_ticks": 0
     },
     {
       "vehicle_id": "V1",
-      "moves": 683,
-      "deliveries": 5,
-      "cost": 749.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9312
+      "moves": 381,
+      "deliveries": 1,
+      "cost": 343.0,
+      "wasted_space_steps": 4698.0,
+      "idle_ticks": 0
     }
   ],
   "rl_stats": {
     "agents": [
       {
         "vehicle_id": "V0",
-        "q_table_states": 1146,
+        "q_table_states": 1188,
         "epsilon": 0.05
       },
       {
         "vehicle_id": "V1",
-        "q_table_states": 1114,
+        "q_table_states": 1195,
         "epsilon": 0.05
       }
     ]

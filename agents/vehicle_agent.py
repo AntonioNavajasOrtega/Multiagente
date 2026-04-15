@@ -6,10 +6,10 @@ Planifica rutas y se comunica asíncronamente con depósitos, clientes y coordin
 """
 from __future__ import annotations
 import random
-from typing import List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
 from autogen_core import RoutedAgent, message_handler, MessageContext, AgentId
 
-from core.entities import Vehicle, VehicleState, Cargo, Priority
+from core.entities import Vehicle, VehicleState, Cargo, Priority, Depot, Client
 from core.pathfinding import AStar
 from .messages import (
     PickupRequest, PickupResponse, 
@@ -41,6 +41,9 @@ class VehicleAgent(RoutedAgent):
         self.depots = depots    # id -> Depot (Data)
         self.clients = clients  # id -> Client (Data)
         self.astar = AStar(grid)
+        self.assigned_amount = 0  
+        self.stagnation_counter = 0
+        self.last_pos = vehicle.pos
 
     # ------------------------------------------------------------------
     # Manejadores de Mensajes
@@ -49,14 +52,16 @@ class VehicleAgent(RoutedAgent):
     @message_handler
     async def handle_assignment(self, message: Assignment, ctx: MessageContext) -> None:
         """Recibe una tarea del coordinador."""
-        if self.vehicle.state == VehicleState.IDLE:
-            self.vehicle.target_depot = message.depot_id
-            self.vehicle.target_client = message.client_id
-            self.vehicle.state = VehicleState.HEADING_DEPOT
-            self.vehicle.route = []
-            # Responder aceptación
-            if ctx.sender:
-                await self.send_message("ACCEPTED", recipient=ctx.sender)
+        # Aceptamos la tarea siempre que venga del coordinador (aunque no estemos IDLE,
+        # esto permite re-asignaciones forzosas o revocaciones).
+        self.vehicle.target_depot = message.depot_id
+        self.vehicle.target_client = message.client_id
+        self.assigned_amount = message.amount  # Guardamos la cantidad exacta
+        self.vehicle.state = VehicleState.HEADING_DEPOT
+        self.vehicle.route = []
+        # Responder aceptación
+        if ctx.sender:
+            await self.send_message("ACCEPTED", recipient=ctx.sender)
 
     @message_handler
     async def handle_tick(self, message: TickMessage, ctx: MessageContext) -> None:
@@ -83,6 +88,26 @@ class VehicleAgent(RoutedAgent):
         if v.state == VehicleState.WAITING_RESPONSE:
             return
 
+        # Detección de estancamiento (si no somos IDLE)
+        if v.state != VehicleState.IDLE:
+            if v.pos == self.last_pos:
+                self.stagnation_counter += 1
+            else:
+                self.stagnation_counter = 0
+            
+            # Auto-Aborto tras 20 ticks bloqueado
+            if self.stagnation_counter >= 20:
+                print(f"  [STAGNATION] {v.id} aborta tarea en {v.pos} por bloqueo.")
+                v.state = VehicleState.IDLE
+                v.target_depot = None
+                v.target_client = None
+                v.route = []
+                self.assigned_amount = 0
+                self.stagnation_counter = 0
+                return
+        
+        self.last_pos = v.pos
+
         if v.state == VehicleState.IDLE:
             # En modo simple (sin coordinador), buscamos tarea localmente
             target = self._find_random_task()
@@ -90,6 +115,13 @@ class VehicleAgent(RoutedAgent):
                 did, cid = target
                 v.target_depot = did
                 v.target_client = cid
+                
+                # Calcular cantidad necesaria para no desperdiciar stock
+                client_obj = self.clients[cid]
+                demand_dict = client_obj._cli.demand if hasattr(client_obj, "_cli") else client_obj.demand
+                pending_demand = demand_dict.get(did, 0)
+                self.assigned_amount = min(v.capacity, pending_demand)
+                
                 v.state = VehicleState.HEADING_DEPOT
                 v.route = []
             else:
@@ -118,6 +150,23 @@ class VehicleAgent(RoutedAgent):
         # 3. Acciones al llegar a destino
         if v.pos == target_pos:
             if v.state == VehicleState.HEADING_DEPOT:
+                # Recalcular asignación por si la demanda bajó mientras viajábamos
+                did, cid = v.target_depot, v.target_client
+                if did and cid:
+                    client_obj = self.clients[cid]
+                    demand_dict = client_obj._cli.demand if hasattr(client_obj, "_cli") else client_obj.demand
+                    pending_demand = demand_dict.get(did, 0)
+                    
+                    # Si ya no hay demanda (otro vehículo llegó antes), abortar pickup
+                    if pending_demand <= 0:
+                        v.state = VehicleState.IDLE
+                        v.target_depot = None
+                        v.target_client = None
+                        v.route = []
+                        return
+
+                    self.assigned_amount = min(self.assigned_amount if self.assigned_amount > 0 else v.capacity, pending_demand)
+
                 await self._perform_pickup(v.target_depot, metrics)
             elif v.state == VehicleState.HEADING_CLIENT:
                 await self._perform_delivery(v.target_client, metrics)
@@ -129,13 +178,15 @@ class VehicleAgent(RoutedAgent):
     async def _perform_pickup(self, depot_id: str, metrics: SimulationMetrics) -> None:
         """Solicita carga al depósito mediante REQUEST/RESPONSE."""
         v = self.vehicle
-        amount = v.capacity 
+        # Usamos la cantidad asignada por el coordinador para no vaciar el depósito sin necesidad
+        amount = self.assigned_amount if self.assigned_amount > 0 else v.capacity 
         
         # En v0.4 usamos AgentId para localizar al DepotAgent
         depot_aid = AgentId(type="DepotAgent", key=depot_id)
         
         # Pasar a estado de espera antes de enviar para evitar re-envíos en el siguiente tick
         v.state = VehicleState.WAITING_RESPONSE
+        print(f"  [MSG] {v.id} -> {depot_id}: PickupRequest(units={amount})")
         await self.send_message(PickupRequest(v.id, amount), recipient=depot_aid)
 
     @message_handler
@@ -162,6 +213,7 @@ class VehicleAgent(RoutedAgent):
         
         # Pasar a estado de espera antes de enviar
         v.state = VehicleState.WAITING_RESPONSE
+        print(f"  [MSG] {v.id} -> {client_id}: DeliveryMessage(units={v.cargo.units})")
         await self.send_message(
             DeliveryMessage(v.id, v.cargo.depot_id, v.cargo.units),
             recipient=client_aid
@@ -229,5 +281,6 @@ class VehicleAgent(RoutedAgent):
             pos=v.pos,
             has_cargo=(v.cargo is not None),
             target_depot=v.target_depot,
-            target_client=v.target_client
+            target_client=v.target_client,
+            capacity=v.capacity
         )

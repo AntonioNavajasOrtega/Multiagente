@@ -1,51 +1,58 @@
 {
   "scenario_name": "large_sparse",
   "scenario_type": "coordinated",
-  "timestamp": "2026-04-05T23:48:10",
+  "timestamp": "2026-04-15T22:03:28",
   "metrics": {
     "total_iterations": 10000,
-    "total_moves": 144,
-    "total_deliveries": 8,
-    "total_cost": 143.0,
-    "wasted_space_steps": 0.0,
-    "total_idle_ticks": 29856
+    "total_moves": 20042,
+    "total_deliveries": 14,
+    "total_cost": 272.0,
+    "wasted_space_steps": 1398.0,
+    "total_idle_ticks": 0
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 48,
-      "deliveries": 2,
-      "cost": 47.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9952
+      "moves": 10000,
+      "deliveries": 6,
+      "cost": 137.0,
+      "wasted_space_steps": 819.0,
+      "idle_ticks": 0
     },
     {
       "vehicle_id": "V1",
-      "moves": 51,
-      "deliveries": 3,
-      "cost": 51.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9949
+      "moves": 10000,
+      "deliveries": 6,
+      "cost": 93.0,
+      "wasted_space_steps": 453.0,
+      "idle_ticks": 0
     },
     {
       "vehicle_id": "V2",
-      "moves": 45,
-      "deliveries": 3,
-      "cost": 45.0,
-      "wasted_space_steps": 0.0,
-      "idle_ticks": 9955
+      "moves": 42,
+      "deliveries": 2,
+      "cost": 42.0,
+      "wasted_space_steps": 126.0,
+      "idle_ticks": 0
     }
   ],
   "assignment_log": [
-    "  Coordinador: V0 → D1:C6",
-    "  Coordinador: V1 → D0:C3",
-    "  Coordinador: V2 → D1:C3",
-    "  Coordinador: V1 → D2:C9",
-    "  Coordinador: V2 → D0:C6",
-    "  Coordinador: V0 → D2:C7",
-    "  Coordinador: V1 → D3:C4",
-    "  Coordinador: V2 → D2:C8",
-    "  Coordinador: V2 → D3:C2",
-    "  Coordinador: V0 → D3:C1"
+    "  Coordinador: V0 → D1:C6 (uds: 10)",
+    "  Coordinador: V1 → D0:C3 (uds: 9)",
+    "  Coordinador: V2 → D1:C3 (uds: 9)",
+    "  Coordinador: V1 → D2:C9 (uds: 9)",
+    "  Coordinador: V2 → D0:C6 (uds: 7)",
+    "  Coordinador: V0 → D2:C7 (uds: 9)",
+    "  Coordinador: V1 → D1:C0 (uds: 6)",
+    "  Coordinador: V2 → D2:C7 (uds: 9)",
+    "  Coordinador: V1 → D1:C1 (uds: 4)",
+    "  Coordinador: V0 → D3:C4 (uds: 4)",
+    "  Coordinador: V1 → D2:C8 (uds: 7)",
+    "  Coordinador: V1 → D3:C2 (uds: 7)",
+    "  Coordinador: V0 → D1:C4 (uds: 3)",
+    "  Coordinador: V1 → D0:C7 (uds: 2)",
+    "  Coordinador: V0 → D3:C1 (uds: 2)",
+    "  Coordinador: V0 → D0:C5 (uds: 2)",
+    "  Coordinador: V0 → D0:C7 (uds: 2)"
   ]
 }

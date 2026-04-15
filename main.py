@@ -83,8 +83,13 @@ async def cmd_simulate(args) -> None:
     # Mostrar resumen
     metrics.print_summary()
 
-    # Guardar resultado JSON
+    # Guardar resultado JSON (Automático si no se especifica --output)
     output_path = args.output
+    if not output_path:
+        # Generar nombre automático: results/res_<escenario>_<modo>.json
+        scenario_base = os.path.splitext(os.path.basename(args.scenario))[0]
+        output_path = f"results/res_{scenario_base}_{mode}.json"
+
     if output_path:
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
         result = metrics.to_dict()

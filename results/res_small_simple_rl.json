@@ -1,22 +1,22 @@
 {
   "scenario_name": "small_simple",
   "scenario_type": "rl",
-  "timestamp": "2026-04-05T23:48:05",
+  "timestamp": "2026-04-15T22:03:23",
   "metrics": {
-    "total_iterations": 28,
-    "total_moves": 25,
+    "total_iterations": 31,
+    "total_moves": 28,
     "total_deliveries": 3,
-    "total_cost": 26.0,
-    "wasted_space_steps": 0.0,
+    "total_cost": 28.0,
+    "wasted_space_steps": 56.0,
     "total_idle_ticks": 0
   },
   "vehicle_logs": [
     {
       "vehicle_id": "V0",
-      "moves": 25,
+      "moves": 28,
       "deliveries": 3,
-      "cost": 26.0,
-      "wasted_space_steps": 0.0,
+      "cost": 28.0,
+      "wasted_space_steps": 56.0,
       "idle_ticks": 0
     }
   ],
@@ -24,7 +24,7 @@
     "agents": [
       {
         "vehicle_id": "V0",
-        "q_table_states": 105,
+        "q_table_states": 101,
         "epsilon": 0.05
       }
     ]

@@ -231,7 +231,20 @@ class BaseScenario:
             print(f"  {ca.client_id}: {ca.demand_message()}")
 
     def _all_delivered(self) -> bool:
-        return all(ca.is_satisfied() for ca in self.client_agents.values())
+        satisfied_states = {ca.client_id: ca.is_satisfied() for ca in self.client_agents.values()}
+        # Devolver True solo si todos están satisfechos
+        all_sat = all(satisfied_states.values())
+        
+        # Si no han terminado y estamos en verbose, mostrar quién falta cada 100 pasos
+        if not all_sat and self.metrics.total_iterations % 100 == 0:
+            pending = []
+            for cid, agent in self.client_agents.items():
+                if not agent.is_satisfied():
+                    pending.append(f"{cid}({agent.demand_message()})")
+            if pending:
+                print(f"  [DEBUG-TERMINATION] Esperando a clientes: {', '.join(pending)}")
+                
+        return all_sat
 
     @classmethod
     def load_scenario(cls, path: str):
